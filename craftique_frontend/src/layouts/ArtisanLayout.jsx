@@ -1,0 +1,159 @@
+import { useEffect, useState } from "react";
+import { useNavigate, Link, useLocation } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+
+function ArtisanLayout({ children }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const token = localStorage.getItem("access");
+  const decoded = token ? jwtDecode(token) : {};
+  const fullName = decoded.full_name || "Artisan";
+
+  const [active, setActive] = useState(location.pathname);
+
+  useEffect(() => {
+    setActive(location.pathname);
+  }, [location.pathname]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("access");
+    localStorage.removeItem("refresh");
+    navigate("/login");
+  };
+  function getNavLinkStyle(path, activePath) {
+  const isActive = activePath.startsWith(path);
+  return {
+    ...styles.navLink,
+    backgroundColor: isActive ? "#b98e69" : "transparent",
+    color: isActive ? "#fff" : "#4a3f35",
+    fontWeight: isActive ? "600" : "normal",
+  };
+}
+
+
+  return (
+    <div style={styles.container}>
+      {/* Sidebar */}
+      <aside style={styles.sidebar}>
+        <h2 style={styles.logo}>Craftique</h2>
+        <nav style={styles.nav}>
+          <Link to="/artisan/dashboard" style={getNavLinkStyle("/artisan/dashboard", active)}>Dashboard</Link>
+          <Link to="/artisan/products/add" style={getNavLinkStyle("/artisan/products/add", active)}>Add Product</Link>
+          <Link to="/artisan/products" style={getNavLinkStyle("/artisan/products", active)}>Products</Link>
+          <Link to="/artisan/orders" style={getNavLinkStyle("/artisan/orders", active)}>Orders</Link>
+          <Link to="/artisan/payments" style={getNavLinkStyle("/artisan/payments", active)}>Payments</Link>
+          <Link to="/artisan/analytics" style={getNavLinkStyle("/artisan/analytics", active)}>Analytics</Link>
+          <button onClick={handleLogout} style={styles.logoutBtn}>Logout</button>
+        </nav>
+      </aside>
+
+      {/* Main Content */}
+      <div style={styles.main}>
+        <header style={styles.header}>
+          <div style={styles.userBox}>
+            <span style={styles.userName}>👋 {fullName}</span>
+            <img
+              src="http://localhost:8000/media/profilephotos/male_dp.jpeg"
+              alt="Profile"
+              style={styles.avatar}
+            />
+          </div>
+        </header>
+        <main style={styles.content}>{children}</main>
+      </div>
+      
+    </div>
+  );
+}
+
+function getNavLinkStyle(path, activePath) {
+  const isActive = path === activePath;
+  return {
+    ...styles.navLink,
+    backgroundColor: isActive ? "#b98e69" : "transparent",
+    color: isActive ? "#fff" : "#4a3f35",
+    fontWeight: isActive ? "600" : "normal",
+  };
+}
+
+const styles = {
+  container: {
+    display: "flex",
+    minHeight: "100vh",
+    fontFamily: "Segoe UI, sans-serif",
+    backgroundColor: "#f6f3f0",
+  },
+  sidebar: {
+    width: "220px",
+    backgroundColor: "#7c5c45",
+    color: "#fff",
+    padding: "20px",
+    display: "flex",
+    flexDirection: "column",
+  },
+  logo: {
+    fontSize: "1.6rem",
+    fontWeight: "bold",
+    marginBottom: "30px",
+    fontFamily: "'Playfair Display', serif",
+  },
+  nav: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "12px",
+  },
+  navLink: {
+    textDecoration: "none",
+    padding: "10px 14px",
+    borderRadius: "5px",
+    transition: "all 0.3s ease",
+    backgroundColor: "transparent",
+  },
+  logoutBtn: {
+    marginTop: "auto",
+    padding: "10px 14px",
+    borderRadius: "5px",
+    border: "none",
+    backgroundColor: "#a55439",
+    color: "#fff",
+    cursor: "pointer",
+    fontWeight: "600",
+  },
+  main: {
+    flex: 1,
+    display: "flex",
+    flexDirection: "column",
+  },
+  header: {
+    height: "60px",
+    backgroundColor: "#d9c7b2",
+    display: "flex",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    padding: "0 20px",
+    borderBottom: "1px solid #ccc",
+  },
+  userBox: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+  },
+  userName: {
+    fontSize: "0.95rem",
+    fontWeight: "500",
+    color: "#4a3f35",
+  },
+  avatar: {
+    width: "36px",
+    height: "36px",
+    borderRadius: "50%",
+    objectFit: "cover",
+  },
+  content: {
+    padding: "25px",
+    flex: 1,
+    backgroundColor: "#fdfaf7",
+  },
+};
+
+export default ArtisanLayout;
